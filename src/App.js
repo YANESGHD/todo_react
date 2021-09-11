@@ -1,7 +1,7 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import { Task } from "./Task.js";
-import { createTask, getAllTasks } from './services/notes/index';
+import { createTask, getAllTasks } from './services/tasks/index';
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
