@@ -1,45 +1,60 @@
-import React from "react";
 import "./App.css";
+import { useEffect, useState } from "react";
+import { Task } from "./Task.js";
+import { createTask, getAllTasks } from './services/notes/index';
 
-const TODO_LIST = ["Lavar", "Pasear a Koku", "Ayudar a mi mama"];
+export default function App() {
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const App = () => {
-  console.log('App is being rendered')
-  const [todoList, setTodoList] = React.useState(TODO_LIST)
+  useEffect(() => {
+    setLoading(true);
+    getAllTasks()
+      .then(tasks => {
+        setTasks(tasks);
+        setLoading(false);
+      });
+  }, []);
 
-  const addInput = () => {
-    const newTask = window.prompt("Enter your task: ");
+  const handleChange = (event) => {
+    setNewTask(event.target.value);
+  };
 
-    const newTodoList = todoList.concat(newTask);
-    
-    setTodoList(newTodoList)
-  }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const taskToAddToState = {
+      id: tasks.length + 1,
+      content: newTask,
+      body: newTask,
+    };
 
-  // const addTask = () => {
-  //   const task = 'Estudiar programacion';
-  //   const newTodoList = todoList.concat(task);
-    
-  //   setTodoList(newTodoList)
-  // }
+    createTask(taskToAddToState)
+      .then(newTask => {
+        setTasks(prevTasks => prevTasks.concat(newTask))
+      }).catch(e => {
+        console.log(e)
+      })
+
+    setNewTask("");
+  };
 
   return (
     <>
-      <h1 className="title">TODO LIST</h1>
+      <h1>
+        <strong>TODO LIST</strong>
+      </h1>
+      {loading ? <p>Cargando...</p> : ""}
       <ul>
-        {todoList.map((todo, i) => (
-          <li key={i}>{todo}</li>
+        {tasks.map((task) => (
+          <Task key={task.id} {...task} />
         ))}
       </ul>
-      <form>
-        <label>
-          Task:
-          <br />
-          <input type="text" name="name" />
-        </label>
-        <input onClick={addInput} type="submit" value="Submit" />
+
+      <form onSubmit={handleSubmit}>
+        <input type="text" onChange={handleChange}></input>
+        <button>➕</button>
       </form>
     </>
   );
 }
-
-export default App;
